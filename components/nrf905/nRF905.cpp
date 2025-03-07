@@ -52,7 +52,7 @@ void nRF905::setup() {
   // RX power normal
   this->_config.rx_power = PowerNormal;
 
-  this->_config.rx_address = 0x89816EA9;  // ZEHNDER_NETWORK_LINK_ID;
+  this->_config.rx_address = 0xA55A5AA5;  // ZEHNDER_NETWORK_LINK_ID;
   this->_config.rx_address_width = 4;
   this->_config.rx_payload_width = 16;
 
