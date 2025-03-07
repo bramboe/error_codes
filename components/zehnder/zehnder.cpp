@@ -253,13 +253,7 @@ void ZehnderRF::loop(void) {
 void ZehnderRF::queryErrorStatus(void) {
   RfFrame *const pFrame = (RfFrame *) this->_txFrame;  // frame helper
 
-  // Try different command codes
-  // Current command: 0x30
-  // Let's try: 0x31, 0x11, 0x20, or 0x40
-  // Comment/uncomment the line below to change the command code
-  uint8_t test_command = 0x31;  // Change this value to test different codes
-
-  ESP_LOGI(TAG, "Query error status (command: 0x%02X)", test_command);
+  ESP_LOGI(TAG, "Query error status");
 
   this->lastErrorQuery_ = millis();  // Update time
 
@@ -272,7 +266,9 @@ void ZehnderRF::queryErrorStatus(void) {
   pFrame->tx_type = this->config_.fan_my_device_type;
   pFrame->tx_id = this->config_.fan_my_device_id;
   pFrame->ttl = FAN_TTL;
-  pFrame->command = test_command;  // Use the test command
+
+  // Try 0x30 instead of 0x31 as command code
+  pFrame->command = 0x30;  // Use FAN_TYPE_QUERY_ERROR_STATUS constant
   pFrame->parameter_count = 0x00;  // No parameters
 
   ESP_LOGD(TAG, "Error query frame: type:0x%02X id:0x%02X -> type:0x%02X id:0x%02X cmd:0x%02X",
@@ -280,12 +276,6 @@ void ZehnderRF::queryErrorStatus(void) {
 
   this->startTransmit(this->_txFrame, FAN_TX_RETRIES, [this]() {
     ESP_LOGW(TAG, "Error status query timeout");
-
-    // Notify UI about failure via sensors if available
-    if (this->error_code_sensor_ != nullptr) {
-      this->error_code_sensor_->publish_state("Query Timeout");
-    }
-
     this->state_ = StateIdle;
   });
 
